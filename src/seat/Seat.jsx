@@ -8,6 +8,12 @@ const Seat = () => {
   const location = useLocation();
   const totalAmount = location.state?.total || 0; 
 
+    // format amount in Naira with .00
+  const formattedAmount = `₦${totalAmount.toLocaleString("en-NG", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+
   const [firstname, setFirstname] = useState("");
   const [email, setEmail] = useState("");
   const [amount, setAmount] = useState(totalAmount); 
@@ -58,7 +64,7 @@ const Seat = () => {
         <Input
           width="50%"
           type="number"
-          value={amount}
+          value={formattedAmount}
           readOnly
           placeholder="Amount"
         />
