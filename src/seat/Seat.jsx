@@ -60,14 +60,9 @@ const Seat = () => {
           placeholder="Enter Email"
           onChange={(e) => setEmail(e.target.value)}
         />
-
-        <Input
-          width="50%"
-          type="number"
-          value={formattedAmount}
-          readOnly
-          placeholder="Amount"
-        />
+        <div color="white" fontSize="lg" fontWeight="bold">
+          Amount: {formattedAmount}
+        </div>
 
         <Button type="submit" width="50%" onClick={paywithpaystack}>
           Payment

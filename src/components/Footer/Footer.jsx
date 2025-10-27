@@ -1,6 +1,6 @@
 import React from "react";
 import "./footer.css";
-import { Container, Box, Flex,Button, Text, Grid, GridItem , Center} from "@chakra-ui/react";
+import { Container, Box, Text, Grid, GridItem , Center} from "@chakra-ui/react";
 
 const Footer = () => {
   return (
@@ -50,7 +50,10 @@ const Footer = () => {
         </Grid>
         </Center> 
       <Center>
-        <Text  mb={20} as='b'>Shittu Odunayo copyright © 2022</Text>
+        <Text mb={20} as="b">
+  Shittu Odunayo Copyright © {new Date().getFullYear()}
+</Text>
+
       </Center>
       
     </Container>

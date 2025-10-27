@@ -1,310 +1,221 @@
-import React from "react";
-import { useState, useEffect, createContext} from "react";
+import React, { useState, useEffect, createContext } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import Footer from "../components/Footer/Footer";
-import Seat from "../seat/Seat"
-import "./booking.css";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faMinus } from "@fortawesome/free-solid-svg-icons";
 import {
-  Container,
-  Box,
-  Flex,
   Text,
-  Grid,
-  GridItem,
   Center,
   Button,
-  SimpleGrid,
-  Image,
-  Wrap,
-  WrapItem,
 } from "@chakra-ui/react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import Footer from "../components/Footer/Footer";
+import "./booking.css";
 
 const CountContext = createContext(0);
+const MOVIE_API = "https://api.themoviedb.org/3/";
+const API_KEY = "3b3721af4d70c58a7f3b856193fd49d7";
+const BACKDROP_PATH = "https://image.tmdb.org/t/p/w1280";
 
-function Booking() {
-  const MOVIE_API = "https://api.themoviedb.org/3/";
-
-  // const SEARCH_API = MOVIE_API + "search/movie"
-  // const DISCOVER_API = MOVIE_API + "discover/movie"
-  const API_KEY = "3b3721af4d70c58a7f3b856193fd49d7";
-  const BACKDROP_PATH = "https://image.tmdb.org/t/p/w1280";
-  const Image_path = "https://image.tmdb.org/t/p/w500/";
-
-  const [count, setCount] = useState(0);
-  const [count6, setCount6] = useState(2000);
-
-  const [count1, setCount1] = useState(0);
-  const [count2, setCount2] = useState(0);
-  const [count3, setCount3] = useState(0);
-  const [count4, setCount4] = useState(0);
-  const [count5, setCount5] = useState(0);
-  
-
-  const [movie, setMovie] = useState([]);
+export default function Booking() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const total =
-    1000 * count4 +
-    100 * count5 +
-    2000 * count3 +
-    200 * count2 +
-    2000 * count1 +
-    2000 * count;
+  const [movie, setMovie] = useState({});
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [location, setLocation] = useState("");
+  const [time, setTime] = useState("");
+
+  const [counts, setCounts] = useState({
+    ticket: 0,
+    shawarma: 0,
+    coke: 0,
+    hotdog: 0,
+    chops: 0,
+    water: 0,
+  });
+
+  const prices = {
+    ticket: 2000,
+    shawarma: 2000,
+    coke: 200,
+    hotdog: 2000,
+    chops: 1000,
+    water: 100,
+  };
+
+  const total = Object.entries(counts).reduce(
+    (acc, [key, value]) => acc + prices[key] * value,
+    0
+  );
+
+  useEffect(() => {
+    const fetchMovie = async () => {
+      try {
+        const { data } = await axios.get(`${MOVIE_API}movie/${id}`, {
+          params: { api_key: API_KEY },
+        });
+        setMovie(data);
+      } catch (err) {
+        console.error("Error fetching movie:", err);
+      }
+    };
+    fetchMovie();
+  }, [id]);
+
+  const updateCount = (item, delta) => {
+    setCounts((prev) => ({
+      ...prev,
+      [item]: Math.max(0, prev[item] + delta),
+    }));
+  };
 
   const handleBookNow = () => {
     navigate("/seat", { state: { total } });
   };
 
-  const [selectedDate, setselectedDate] = useState(null);
-  const [location, setLocation] = useState("");
-  const [time, setTime] = useState("");
-
-  useEffect(() => {
-    fetchMovies();
-  }, []);
-
-  const fetchMovies = async () => {
-    const { data } = await axios.get(`${MOVIE_API}movie/${id}`, {
-      params: {
-        api_key: API_KEY,
-      },
-    });
-
-    setMovie(data);
-    console.log(data);
-  };
-  const incrementCount = () => {
-    setCount(count + 1);
-  };
-
-  const decrementCount = () => {
-    setCount(count - 1);
-  };
-  const incrementCount1 = () => {
-    setCount1(count1 + 1);
-  };
-
-  const decrementCount1 = () => {
-    setCount1(count1 - 1);
-  };
-  const incrementCount2 = () => {
-    setCount2(count2 + 1);
-  };
-
-  const decrementCount2 = () => {
-    setCount2(count2 - 1);
-  };
-  const incrementCount3 = () => {
-    setCount3(count3 + 1);
-  };
-
-  const decrementCount3 = () => {
-    setCount3(count3 - 1);
-  };
-  const incrementCount4 = () => {
-    setCount4(count4 + 1);
-  };
-
-  const decrementCount4 = () => {
-    setCount4(count4 - 1);
-  };
-  const incrementCount5 = () => {
-    setCount5(count5 + 1);
-  };
-
-  const decrementCount5 = () => {
-    setCount5(count5 - 1);
-  };
-
   return (
-    <CountContext.Provider value={1000 * count4 +
-            100 * count5 +
-            2000 * count3 +
-            200 * count2 +
-            2000 * count1 +
-            2000 * count}>
-            
-     
-      <div className="former">
-        <div className="for">
-          {" "}
+    <CountContext.Provider value={total}>
+      <div className="booking-page">
+        {/* === Movie Header === */}
+        <div className="movie-header">
           {movie.backdrop_path && (
             <img
               className="backpath"
               src={BACKDROP_PATH + movie.backdrop_path}
               alt={movie.title}
-              height="250px"
             />
           )}
-           { <div className="text">
-            <h3 className={"bookingtitle"}>{movie.title}</h3>
-            <h4> {count} Guests</h4>
-          </div> } 
+          <div className="overlay">
+            <h3 className="bookingtitle">{movie.title}</h3>
+            <Text>{counts.ticket} Guests</Text>
+          </div>
         </div>
-        <div className="ticket">
-        <Center>
-            <Text> ₦2,000. / Ticket </Text>
-        </Center>
-        <Center>
-            <Button disabled={count <= 0} onClick={decrementCount}>
-              {" "}
-              <FontAwesomeIcon icon={faMinus}></FontAwesomeIcon>{" "}
-            </Button>
-            {count}
-            <Button disabled={count >= 50} onClick={incrementCount}>
-              {" "}
-              <FontAwesomeIcon icon={faPlus}></FontAwesomeIcon>{" "}
-            </Button>
-          </Center>
-          <Center>
-            <Text>₦{2 * count},000.00 </Text>
-          </Center>
-        </div>
-      </div>
 
-      <Center>
-        <div className="moneyman">
+        {/* === Ticket Section === */}
+        <TicketSection
+          count={counts.ticket}
+          price={prices.ticket}
+          updateCount={(delta) => updateCount("ticket", delta)}
+        />
+
+        {/* === Date & Location Selection === */}
+        <Center className="selectors">
           <DatePicker
-            className="money"
+            className="picker"
             selected={selectedDate}
-            onChange={(date) => setselectedDate(date)}
+            onChange={(date) => setSelectedDate(date)}
             minDate={new Date()}
-            filterDate={(date) => date.getDay() != 0}
-            isClearable
-            placeholderText="Date"
-            popperProps={{ strategy: "fixed" }}
+            placeholderText="Select Date"
           />
-        </div>
-        <div>
           <select
-            placeholder="Place"
-            onChange={(event) => setLocation(event.target.value)}
-            className="place"
+            className="select"
+            onChange={(e) => setLocation(e.target.value)}
             value={location}
           >
-            <option value="lagos">Lagos</option>
-            <option value="ibadan">Ibadan</option>
-            <option value="kano">Kano</option>
-            <option value="port">Port Harcourt</option>
-            <option value="abuja"> Abuja</option>
+            <option value="">Select Location</option>
+            <option value="Lagos">Lagos</option>
+            <option value="Ibadan">Ibadan</option>
+            <option value="Kano">Kano</option>
+            <option value="Port Harcourt">Port Harcourt</option>
+            <option value="Abuja">Abuja</option>
           </select>
-        </div>
-        <div>
           <select
-            placeholder="Place"
-            onChange={(event) => setTime(event.target.value)}
+            className="select"
+            onChange={(e) => setTime(e.target.value)}
             value={time}
-            className="place"
           >
-            <option value="time">11:30</option>
-            <option value="tim">12:20</option>
-            <option value="ti">14:10</option>
-            <option value="t">17:00</option>
+            <option value="">Select Time</option>
+            <option value="11:30">11:30</option>
+            <option value="12:20">12:20</option>
+            <option value="14:10">14:10</option>
+            <option value="17:00">17:00</option>
           </select>
-        </div>
-      </Center>
-      <Center>
-        <h3 className="tfood" >
-          <span> You want foods/Snacks too?</span>
-         
-        </h3>
-      </Center>
-      <div className="food">
-        
-          {" "}
-          <div className="foods">
-            <h3 className="foodss">Shawama</h3>
-            <h4>Price : ₦2,000</h4>
-            <button disabled={count1 <= 0} onClick={decrementCount1}>
-              {" "}
-              <FontAwesomeIcon icon={faMinus}></FontAwesomeIcon>{" "}
-            </button>
-            {count1}
-            <button disabled={count1 >= 50} onClick={incrementCount1}>
-              {" "}
-              <FontAwesomeIcon icon={faPlus}></FontAwesomeIcon>{" "}
-            </button>
-            <h3>₦{2000 * count1}.00 </h3>
-          </div>
-        
-        <div className="foods">
-          <h3 className="foodss">Coke</h3>
-          <h4>Price : ₦200</h4>
-          <button disabled={count2 <= 0} onClick={decrementCount2}>
-            {" "}
-            <FontAwesomeIcon icon={faMinus}></FontAwesomeIcon>{" "}
-          </button>
-          {count2}
-          <button disabled={count2 >= 50} onClick={incrementCount2}>
-            {" "}
-            <FontAwesomeIcon icon={faPlus}></FontAwesomeIcon>{" "}
-          </button>
-          <h3>₦{200 * count2}.00 </h3>
-        </div>
-        <div className="foods">
-          <h3  className="foodss">Hot-Dogs</h3>
-          <h4>Price : ₦2,000</h4>
-          <button disabled={count3 <= 0} onClick={decrementCount3}>
-            {" "}
-            <FontAwesomeIcon icon={faMinus}></FontAwesomeIcon>{" "}
-          </button>
-          {count3}
-          <button disabled={count3 >= 50} onClick={incrementCount3}>
-            {" "}
-            <FontAwesomeIcon icon={faPlus}></FontAwesomeIcon>{" "}
-          </button>
-          <h3>₦{2000 * count3}.00 </h3>
-        </div>
-        <div className="foods">
-          <h3  className="foodss">Small-Chops</h3>
-          <h4>Price : ₦1,000</h4>
-          <button disabled={count4 <= 0} onClick={decrementCount4}>
-            {" "}
-            <FontAwesomeIcon icon={faMinus}></FontAwesomeIcon>{" "}
-          </button>
-          {count4}
-          <button disabled={count4 >= 50} onClick={incrementCount4}>
-            {" "}
-            <FontAwesomeIcon icon={faPlus}></FontAwesomeIcon>{" "}
-          </button>
-          <h3>₦{1000 * count4}.00 </h3>
-        </div>
-        <div className="foods">
-          <h3 className="foodss">Water</h3>
-          <h4>Price : ₦100</h4>
-          <button disabled={count5 <= 0} onClick={decrementCount5}>
-            {" "}
-            <FontAwesomeIcon icon={faMinus}></FontAwesomeIcon>{" "}
-          </button>
-          {count5}
-          <button disabled={count5 >= 50} onClick={incrementCount5}>
-            {" "}
-            <FontAwesomeIcon icon={faPlus}></FontAwesomeIcon>{" "}
-          </button>
-          <h3>₦{100 * count5}.00 </h3>
-        </div>
-      </div>
-      <Center>
-       <Text fontSize="50px" as="b">
-          Total : ₦{total}
-        </Text>
-      </Center>
-      
-      <button className="btn" onClick={handleBookNow}>
-        Book Now
-      </button>
+        </Center>
 
-      <Footer />
-      </CountContext.Provider>
-    
+        {/* === Food Section === */}
+        <Center>
+          <Text className="tfood">Want foods/snacks too?</Text>
+        </Center>
+        <SnackSection counts={counts} prices={prices} updateCount={updateCount} />
+
+        {/* === Total and Booking Button === */}
+        <Center>
+          <Text fontSize="40px" as="b" mt={5}>
+            Total: ₦{total.toLocaleString()}
+          </Text>
+        </Center>
+
+        <Center>
+          <Button className="btn" onClick={handleBookNow}>
+            Book Now
+          </Button>
+        </Center>
+
+        <Footer />
+      </div>
+    </CountContext.Provider>
   );
 }
 
-export default Booking;
+const TicketSection = ({ count, price, updateCount }) => (
+  <div className="ticket-section">
+    <Center>
+      <Text>₦{price.toLocaleString()} / Ticket</Text>
+    </Center>
+    <Center>
+      <Button disabled={count <= 0} onClick={() => updateCount(-1)}>
+        <FontAwesomeIcon icon={faMinus} />
+      </Button>
+      <Text mx={2}>{count}</Text>
+      <Button disabled={count >= 50} onClick={() => updateCount(1)}>
+        <FontAwesomeIcon icon={faPlus} />
+      </Button>
+    </Center>
+    <Center>
+      <Text>₦{(count * price).toLocaleString()}.00</Text>
+    </Center>
+  </div>
+);
+
+const SnackSection = ({ counts, prices, updateCount }) => {
+  const snacks = [
+    { key: "shawarma", label: "Shawarma" },
+    { key: "coke", label: "Coke" },
+    { key: "hotdog", label: "Hot-Dog" },
+    { key: "chops", label: "Small-Chops" },
+    { key: "water", label: "Water" },
+  ];
+  return (
+    <div className="food-section">
+      {snacks.map(({ key, label }) => (
+        <SnackItem
+          key={key}
+          name={label}
+          price={prices[key]}
+          count={counts[key]}
+          updateCount={(delta) => updateCount(key, delta)}
+        />
+      ))}
+    </div>
+  );
+};
+
+const SnackItem = ({ name, price, count, updateCount }) => (
+  <div className="snack-item">
+    <h3>{name}</h3>
+    <h4>Price: ₦{price.toLocaleString()}</h4>
+    <div className="controls">
+      <Button disabled={count <= 0} onClick={() => updateCount(-1)}>
+        <FontAwesomeIcon icon={faMinus} />
+      </Button>
+      <span>{count}</span>
+      <Button disabled={count >= 50} onClick={() => updateCount(1)}>
+        <FontAwesomeIcon icon={faPlus} />
+      </Button>
+      <Text>₦{(count * price).toLocaleString()}</Text>
+    </div>
+  </div>
+);
+
