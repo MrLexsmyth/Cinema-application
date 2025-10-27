@@ -1,7 +1,7 @@
 import React from "react";
 import { useState, useEffect, createContext} from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer/Footer";
 import Seat from "../seat/Seat"
 import "./booking.css";
@@ -48,6 +48,19 @@ function Booking() {
 
   const [movie, setMovie] = useState([]);
   const { id } = useParams();
+  const navigate = useNavigate();
+
+  const total =
+    1000 * count4 +
+    100 * count5 +
+    2000 * count3 +
+    200 * count2 +
+    2000 * count1 +
+    2000 * count;
+
+  const handleBookNow = () => {
+    navigate("/seat", { state: { total } });
+  };
 
   const [selectedDate, setselectedDate] = useState(null);
   const [location, setLocation] = useState("");
@@ -279,19 +292,15 @@ function Booking() {
         </div>
       </div>
       <Center>
-        <Text fontSize="50px" as="b">
-          Total : ₦
-          {1000 * count4 +
-            100 * count5 +
-            2000 * count3 +
-            200 * count2 +
-            2000 * count1 +
-            2000 * count} 
+       <Text fontSize="50px" as="b">
+          Total : ₦{total}
         </Text>
       </Center>
-      <Link to={`/seat`} className="btn">
+      
+      <button className="btn" onClick={handleBookNow}>
         Book Now
-      </Link>
+      </button>
+
       <Footer />
       </CountContext.Provider>
     

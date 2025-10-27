@@ -1,21 +1,16 @@
-import React from "react";
-import "./seat.css";
-import { useState, useEffect, useCallback } from "react";
-import Footer from "../components/Footer/Footer";
+import React, { useState } from "react";
+import { useLocation } from "react-router-dom";
 import Paystackpop from "@paystack/inline-js";
-import {
-  Input,
-  Stack,
-  Button,
-  Container,
-  Text,
-  Center,
-} from "@chakra-ui/react";
+import Footer from "../components/Footer/Footer";
+import { Input, Stack, Button, Container, Center } from "@chakra-ui/react";
 
 const Seat = () => {
+  const location = useLocation();
+  const totalAmount = location.state?.total || 0; 
+
   const [firstname, setFirstname] = useState("");
   const [email, setEmail] = useState("");
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState(totalAmount); 
 
   const paywithpaystack = (e) => {
     e.preventDefault();
@@ -25,12 +20,10 @@ const Seat = () => {
       amount: amount * 100,
       email,
       firstname,
-
       onSuccess(transaction) {
-        let message = `Payment Successful! Reference ${transaction.reference}`;
-        alert(message);
+        alert(`Payment Successful! Reference ${transaction.reference}`);
         setEmail("");
-        setAmount("");
+        setAmount(totalAmount);
         setFirstname("");
       },
       onCancel() {
@@ -41,16 +34,11 @@ const Seat = () => {
 
   return (
     <Container maxW="2xl" bg="black">
-      <Center   fontSize="50px" color="red" as="b">
-        Make Payment.
+      <Center fontSize="50px" color="red" as="b">
+        Make Payment
       </Center>
-      <Stack
-        spacing={25}
-        alignItems="center"
-        mb={15}
-        justifyContent="center"
-        maxW="md"
-      >
+
+      <Stack spacing={25} alignItems="center" justifyContent="center" maxW="md">
         <Input
           width="50%"
           type="text"
@@ -69,18 +57,17 @@ const Seat = () => {
 
         <Input
           width="50%"
-          type="text"
+          type="number"
           value={amount}
+          readOnly
           placeholder="Amount"
-          onChange={(e) => setAmount(e.target.value)}
         />
 
         <Button type="submit" width="50%" onClick={paywithpaystack}>
-          {" "}
           Payment
         </Button>
       </Stack>
-      <Footer  />
+      <Footer />
     </Container>
   );
 };
